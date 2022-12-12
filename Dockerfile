@@ -1,16 +1,13 @@
-FROM python:3.10
+FROM python:3.10-alpine
 
-RUN mkdir /app
 WORKDIR /app
 
 # Turn off buffering in case of crashing
 ENV PYTHONUNBUFFERED 1
 
-# Pip Install Dependencies
+# Install dependencies into container
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Staging Files
-COPY . /app
-
-CMD ["python", "main.py"]
+COPY . .
