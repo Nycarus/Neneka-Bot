@@ -1,6 +1,7 @@
 import os
 import discord
 from dotenv import load_dotenv
+import logging
 
 from src.discord_bot import DiscordBot
 
@@ -14,7 +15,11 @@ def main():
     intents.message_content = True
     bot = DiscordBot(command_prefix="!", intents=intents)
 
-    bot.run(TOKEN)
+    # Setup logging
+    log_handler = logging.FileHandler(filename='/data/discord.log', encoding='utf-8', mode='w')
+
+    # Run discord bot
+    bot.run(TOKEN, log_handler=log_handler, log_level=logging.DEBUG)
 
 if __name__ == '__main__':
     main()

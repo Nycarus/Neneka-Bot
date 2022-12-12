@@ -4,6 +4,7 @@ services:
   nenekabot:
     container_name: NenekaBot
     image: nenekabot
+    restart: always
     build:
        context: .
        dockerfile: Dockerfile
@@ -16,6 +17,8 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - ./data:/data
     
   postgres:
     container_name: nenekabot_postgres

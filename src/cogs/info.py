@@ -10,11 +10,11 @@ class InfoCog(commands.Cog):
         self.princess_connect_daily_update.cancel()
 
     @tasks.loop(hours=24.0)
-    async def princess_connect_daily_update(self) -> None:
+    async def princess_connect_daily_update(self):
         print("Updating daily info")
 
     @princess_connect_daily_update.before_loop
-    async def before_daily_update(self) -> None:
+    async def before_daily_update(self):
         print("pre-update")
 
 async def setup(bot: DiscordBot):
