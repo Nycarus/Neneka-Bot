@@ -1,11 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
+from datetime import datetime
 
 class WebScraper:
     @staticmethod
     async def scrape_crunchyroll_events():
-        print("Webscraping crunchyroll princess connect news website.")
-
         url = "https://got.cr/priconne-update"
         req = requests.get(url)
         if (not req.ok):
@@ -33,10 +32,42 @@ class WebScraper:
                     startingBracket = i
                     break
             
+            # Split crunchyroll event string into 2 parts
             eventName, date = event[0:startingBracket].lstrip().rstrip(), event[startingBracket:].strip("(").strip(")").split()
+            
+            # Add seconds to date
+            if (date[1].count(":")==1):
+                date[1] += ":00"
 
-            eventDetails = {"event": eventName, "startingDate": date[0:3], "endingDate": date[4:]}
+            # Add current year to date if it does not exist, because it defaults to 1900
+            if (date[0].count('/') == 1):
+                date[0] += "/" + str(datetime.now().year)
 
+            startDateString = " ".join(date[0:2])
+
+            # Convert date string to datetime format
+            startDate = datetime.strptime(startDateString, '%m/%d/%Y %H:%M:%S')
+
+
+            # Check if there's an end date
+            if (len(date) > 5):
+                
+                # Add seconds to date
+                if (date[-2].count(":")==1):
+                    date[-2] += ":00"
+
+                # Add current year to date if it does not exist, because it defaults to 1900
+                if (date[-3].count("/")==1):
+                    date[-3] += "/" + str(datetime.now().year)
+                
+                endDateString = " ".join(date[4:-1])
+
+                # Convert date string to datetime format
+                endDate = datetime.strptime(endDateString, '%m/%d/%Y %H:%M:%S')
+            else:
+                endDate = None
+
+            eventDetails = {"event": eventName, "startDate": startDate, "endDate": endDate}
             events.append(eventDetails)
         
         return events
