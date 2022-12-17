@@ -13,6 +13,8 @@ def main():
     # Intialize Bot
     intents = discord.Intents.default()
     intents.message_content = True
+    intents.guilds = True
+    intents.members = True
     bot = DiscordBot(command_prefix=";", intents=intents)
 
     # Setup logging

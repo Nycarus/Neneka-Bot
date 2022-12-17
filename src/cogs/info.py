@@ -3,15 +3,19 @@ from discord.ext import tasks, commands
 from src.discord_bot import DiscordBot
 from src.utils.web_scraper import WebScraper
 from src.services.event_service import EventService
+from datetime import datetime, timedelta, time
+import asyncio
 
 class InfoCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
         self._bot = bot
         self.princess_connect_daily_update.start()
+        self.dailyNotifications.start()
         self._eventService = EventService()
 
     def cog_unload(self):
         self.princess_connect_daily_update.cancel()
+        self.dailyNotifications.cancel()
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -96,6 +100,43 @@ class InfoCog(commands.Cog):
             print ("Adding events to database.")
             await self._eventService.addEvents(events)
 
+    @tasks.loop(seconds=30)
+    async def dailyNotifications(self):
+        current_date = datetime.utcnow()
+
+        # Sleep till expected time 14am UTC
+        if (current_date >= current_date.replace(hour=14, minute=0, second=0, microsecond=0)):
+            tomorrow = current_date + timedelta(days=1)
+            tomorrow = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+        else:
+            tomorrow = current_date.replace(hour=14, minute=0, second=0, microsecond=0)
+
+        seconds = (tomorrow - current_date).total_seconds()
+        print(f"Daily reminder in: {seconds} seconds.")
+        await asyncio.sleep(seconds)
+
+        # Print to every server
+        print("Printing daily reminders.")
+        await self._bot.wait_until_ready()
+
+        eventsEnding = await self._eventService.getEventsEnding(days=1)
+        eventsComing = await self._eventService.getEventsUpcoming(days=1)
+
+        embed = discord.embeds.Embed(title="Princess Connect Daily Update", color=discord.Colour.blurple())
+        for event in eventsEnding:
+            embed.add_field(name=f'{event["name"]}', value=f'Ending {event["endDateRelative"]}')
+        for event in eventsComing:
+            embed.add_field(name=f'{event["name"]}', value=f'Starting {event["startDateRelative"]}')
+
+        try:
+            for guild in self._bot.guilds:
+                channel = discord.utils.get(guild.text_channels, name='priconne-notifications')
+                if (channel):
+                    await channel.send(embed=embed)
+        except Exception as e:
+            print(e)
+            print("Can't print")
+        
     @princess_connect_daily_update.before_loop
     async def before_daily_update(self):
         print("pre-update")
