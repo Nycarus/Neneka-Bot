@@ -13,7 +13,7 @@ def main():
     # Intialize Bot
     intents = discord.Intents.default()
     intents.message_content = True
-    bot = DiscordBot(command_prefix="!", intents=intents)
+    bot = DiscordBot(command_prefix=";", intents=intents)
 
     # Setup logging
     log_handler = logging.FileHandler(filename='/data/discord.log', encoding='utf-8', mode='w')

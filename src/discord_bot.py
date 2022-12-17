@@ -16,12 +16,3 @@ class DiscordBot(commands.Bot):
 
     async def on_ready(self):
         print(f'{self.user} is now running.')
-    
-    async def on_message(self, message: discord.message.Message):
-        if message.author == self.user:
-            return
-            
-        print(f'Message from {message.author}: {message.content}')
-
-        if message.content.startswith('$hello'):
-            await message.channel.send('Hello!')

@@ -13,7 +13,7 @@ class Database:
             f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_NAME')}"
             )
         self._session = sessionmaker()
-        self._session.configure(bind=self._engine)
+        self._session.configure(bind=self._engine, expire_on_commit=False)
         Base.metadata.create_all(self._engine)
         print("Postgres database initialized and ready.")
 
