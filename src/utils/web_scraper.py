@@ -19,9 +19,10 @@ class WebScraper:
             print("crunchyroll page contains no content.")
             return None
 
-        # Iterate through event and create dictionary
+        
         events = []
-
+        
+        # Iterate through event and create dictionary
         for li in content[-1].find_all('li', recursive=False):
             event = li.find(text = True).strip()
             

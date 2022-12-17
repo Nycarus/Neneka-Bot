@@ -21,12 +21,13 @@ class GuildCog(commands.Cog):
     async def on_guild_join(self, guild):
         try:
             embed = discord.embeds.Embed(title="Hello!", description="Time to setup this bot to receive notifications.", color=discord.Colour.blurple())
-            embed.add_field(name="Instructions:", 
-            value=f"""
-                - Use the command `;setup` to choose channels where this bot will send messages to.
-                - Alternatively, you may choose to create a `#princess-connect-notification` or `#priconne-notification` channel to receive notifications.\n
-                - Use `;help` to see a list of commands.
-            """, inline=True)
+            embed.add_field(name="Instructions:", inline=True,
+            value=
+            f"""
+            - Use the command `/setup` to choose channels where this bot will send messages to.\n
+            - Alternatively, you may choose to create a `#princess-connect-notification` or `#priconne-notification` channel to receive notifications.\n
+            - Use `/help` to see a list of commands.
+            """)
             await guild.owner.send(embed=embed)
         except Exception as e:
             print(e)
