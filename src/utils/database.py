@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-
+import sqlalchemy
 from sqlalchemy import create_engine, or_, and_
 from sqlalchemy.orm import sessionmaker
 from src.models.model import Base
@@ -21,7 +21,7 @@ class Database:
         Base.metadata.create_all(self._engine)
         print("Postgres database initialized and ready.")
 
-    async def query(self, model, *query):
+    async def query(self, model: Base, *query: sqlalchemy.sql.elements.BinaryExpression) -> list[Base]:
         """
         This method queries the database within a transaction.
 
@@ -47,7 +47,7 @@ class Database:
                 session.commit()
                 return results
     
-    async def query_many(self, model, queries):
+    async def query_many(self, model: Base, queries: list[sqlalchemy.sql.elements.BinaryExpression]) -> list[Base]:
         """
         This method does multiple queries from the database within a transaction.
 
@@ -75,7 +75,7 @@ class Database:
                 session.commit()
                 return results
 
-    async def insert(self, object) -> bool:
+    async def insert(self, object: list[Base]) -> bool:
         """
         This method inserts an object to database within a transaction.
 
@@ -97,7 +97,7 @@ class Database:
                 session.commit()
                 return True
 
-    async def insert_many(self, objects) -> bool:
+    async def insert_many(self, objects: list[Base]) -> bool:
         """
         This method inserts multiple objects to database within a transaction.
 
@@ -120,7 +120,7 @@ class Database:
                 session.commit()
                 return True
     
-    async def delete(self, object) -> bool:
+    async def delete(self, object: list[Base]) -> bool:
         """
         This method deletes an object from database within a transaction.
 
@@ -142,7 +142,7 @@ class Database:
                 session.commit()
                 return True
 
-    async def delete_many(self, objects) -> bool:
+    async def delete_many(self, objects: list[Base]) -> bool:
         """
         This method deletes multiple objects from database within a transaction.
 

@@ -22,7 +22,7 @@ class InfoCog(commands.Cog):
         print("info cog is ready.")
 
     @commands.hybrid_group(name="event", pass_context=True, aliases=["events"])
-    async def events(self, ctx):
+    async def events(self, ctx: commands.context.Context):
         """
         This command sends the current event details within an embed message to the requester.
         :param ctx: the discord context of the message
@@ -45,7 +45,7 @@ class InfoCog(commands.Cog):
             await ctx.send("Unable to get events.")
     
     @events.command(name="ending")
-    async def events_ending(self, ctx, days:int=1):
+    async def events_ending(self, ctx: commands.context.Context, days:int=1):
         """
         This command sends the event details, that are ending, within an embed message to the requester.
         :param ctx: the discord context of the message
@@ -77,7 +77,7 @@ class InfoCog(commands.Cog):
     
     
     @events.command("upcoming")
-    async def events_upcoming(self, ctx, days:int=1):
+    async def events_upcoming(self, ctx: commands.context.Context, days:int=1):
         """
         This command sends the upcoming event details within an embed message to the requester.
         :param ctx: the discord context of the message
