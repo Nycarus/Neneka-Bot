@@ -1,9 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, BIGINT
 from src.models.model import Base
 
 class GuildModel(Base):
     __tablename__ = "guild"
 
-    id = Column(Integer, primary_key=True)
-    notificationChannelID = Column(Integer)
-    commandChannelID = Column(Integer)
+    id = Column(BIGINT, primary_key=True)
+    notificationChannelID = Column(BIGINT, nullable=True)
+    commandChannelID = Column(BIGINT, nullable=True)

@@ -98,7 +98,7 @@ class EventRespository:
         with self._session() as session:
             session.begin()
             try:
-                results = session.query(EventModel).filter(EventModel.id == id).all()
+                results = session.query(EventModel).filter(EventModel.id == id).first()
             except Exception as e:
                 print (e)
                 session.rollback()
@@ -116,13 +116,16 @@ class EventRespository:
         with self._session() as session:
             session.begin()
             try:
-                result = session.query(EventModel).filter_by(EventModel.id==event.id).first()
+                update = {}
                 if (event.name):
-                    result.name = event.name
+                    update["name"] = event.name
                 if (event.startDate):
-                    result.startDate = event.startDate
+                    update["startDate"] = event.startDate
                 if (event.endDate):
-                    result.endDate = event.endDate
+                    update["endDate"] = event.endDate
+
+                session.query(EventModel).filter(EventModel.id==event.id).update(update)
+                
             except Exception as e:
                 print (e)
                 session.rollback()
