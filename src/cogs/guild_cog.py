@@ -38,16 +38,24 @@ class GuildCog(commands.Cog):
     @commands.hybrid_command(name="setup")
     async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = None, commandChannel:discord.TextChannel = None):
         if (not ctx.message.guild):
-            await ctx.send("This command can only be used in a server.")
+            await ctx.reply("This command can only be used in a server.")
             return
 
         # prevent people from using this command if they are not owner or admin
         if (not (ctx.author.guild_permissions.administrator or ctx.author == ctx.guild.owner)):
-            await ctx.send("You do not have permission to use this command.")
+            await ctx.reply("You do not have permission to use this command.")
             return
 
         if (not (notificationChannel or commandChannel)):
-            await ctx.send("Please provide a notification or command channel.")
+            await ctx.reply("Please provide a notification or command channel.")
+            return
+
+        # check if channels are the proper type
+        if (notificationChannel and type(notificationChannel) != discord.TextChannel):
+            await ctx.reply("Please enter a proper notification channel. You can do this with #channel.")
+            return
+        if (commandChannel and type(commandChannel) != discord.TextChannel):
+            await ctx.reply("Please enter a proper command channel. You can do this with #channel.")
             return
         
         # Attempt to update guild information
@@ -62,13 +70,16 @@ class GuildCog(commands.Cog):
             result = await self._guildServices.updateGuild(id=ctx.message.guild.id, notificationChannelID=notificationChannelID, commandChannelID=commandChannelID)
 
             if (result):
-                await ctx.send("Server has successfully updated settings.")
+                await ctx.reply("Server has successfully updated settings.")
             else:
-                await ctx.send("Unable to update server settings.")
+                await ctx.reply("Unable to update server settings.")
             
         except Exception as e:
             print(e)
-            await ctx.send("Guild setup has failed unexpectedly. Make sure the bot has access to those channels and they are spelled correctly.")
+            await ctx.reply("Guild setup has failed unexpectedly. Make sure the bot has access to those channels and they are spelled correctly.")
+
+    async def getServerSettings(self, id: int):
+        return await self._guildServices.getServerSettings(id=id)
 
 async def setup(bot: DiscordBot):
     await bot.add_cog(GuildCog(bot=bot))

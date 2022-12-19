@@ -3,6 +3,7 @@ from discord.ext import tasks, commands
 from src.discord_bot import DiscordBot
 from src.utils.web_scraper import WebScraper
 from src.services.event_service import EventService
+from src.cogs.guild_cog import GuildCog
 from datetime import datetime, timedelta
 import asyncio
 
@@ -31,15 +32,15 @@ class InfoCog(commands.Cog):
             results = await self._eventService.getCurrentEvents()
 
             if (not results):
-                await ctx.send("There are no current events.")
+                await ctx.reply("There are no current events.")
                 return
 
             embed = self.createEventEmbed(ctx=ctx, title="Current Events", data=results, days=None, relative="endDate")
             
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
         except Exception as e:
             print(e)
-            await ctx.send("Unable to get events.")
+            await ctx.reply("Unable to get events.")
     
     @events.command(name="ending")
     async def events_ending(self, ctx: commands.context.Context, days:int=1):
@@ -49,22 +50,22 @@ class InfoCog(commands.Cog):
         :param days: the number of days
         """
         try:
-            if (days <= 0):
-                await ctx.send("Please provide a valid number of days.")
+            if (type(days) != int or days <= 0):
+                await ctx.reply("Please provide a valid number of days.")
                 return
 
             results = await self._eventService.getEventsEnding(days)
 
             if (not results):
-                await ctx.send(f"There are no events ending within {days} {'days' if days > 1 else 'day'}.")
+                await ctx.reply(f"There are no events ending within {days} {'days' if days > 1 else 'day'}.")
                 return
 
             embed = self.createEventEmbed(ctx=ctx, title="Events Ending", data=results, days=days, relative="endDate")
             
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
         except Exception as e:
             print(e)
-            await ctx.send("Unable to get events.")
+            await ctx.reply("Unable to get events.")
     
     
     @events.command("upcoming")
@@ -75,24 +76,24 @@ class InfoCog(commands.Cog):
         :param days: the number of days
         """
         try:
-            if (days <= 0):
-                await ctx.send("Please provide a valid number of days.")
+            if (type(days) != int or days <= 0):
+                await ctx.reply("Please provide a valid number of days.")
                 return
 
             results = await self._eventService.getEventsUpcoming(days)
 
             if (not results):
-                await ctx.send(f"There are no future events within {days} {'days' if days > 1 else 'day'}.")
+                await ctx.reply(f"There are no future events within {days} {'days' if days > 1 else 'day'}.")
                 return
 
             embed = self.createEventEmbed(ctx=ctx, title="Upcoming Events", data=results, days=days, relative="startDate")
             
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
         except Exception as e:
             print(e)
-            await ctx.send("Unable to get events.")
+            await ctx.reply("Unable to get events.")
 
-    def createEventEmbed(self, title, data, ctx=None, days: int = None, relative:str=None):
+    def createEventEmbed(self, title:str, data:str, ctx:commands.context.Context=None, days: int = None, relative:str=None):
         embed = discord.embeds.Embed(title=title, color=discord.Colour.blurple())
         
         # Adding each event to field value
@@ -117,14 +118,11 @@ class InfoCog(commands.Cog):
 
         # Adjusting the field name based on days
         if (days):
-            name=f"Within {days} {'days' if days > 1 else 'day'}."
+            name=f"Within {days} {'days' if days > 1 else 'day'}:"
         else:
-            name="Remember to finish them before they end."
+            name="Events:"
 
         embed.add_field(name=name, value=eventInfo)
-
-        if (ctx and ctx.author):
-            embed.set_footer(text=f'{ctx.author.name} requested this command.')
 
         return embed
     
@@ -169,30 +167,50 @@ class InfoCog(commands.Cog):
         # Starting to print to every server
         print("Printing daily reminders.")
         await self._bot.wait_until_ready()
-
+        
         # Get events ending and coming in 2 days
         eventsEnding = await self._eventService.getEventsEnding(days=2)
         eventsComing = await self._eventService.getEventsUpcoming(days=2)
 
         if (eventsEnding or eventsComing):
-
-            # Delete keywords
-            del eventsComing["endDateRelative"]
-            del eventsEnding["startDateRelative"]
+            # Delete keywords if it exist so createEventEmbed works as intended
+            for i in eventsEnding:
+                i.pop("startDateRelative", None)
+            for i in eventsComing:
+                i.pop("endDateRelative", None)
 
             # Create embed of all event information
             embed = self.createEventEmbed(title="Princess Connect Daily Update", data = eventsEnding + eventsComing)
 
             # Print to every server if possible
-            try:
-                for guild in self._bot.guilds:
+            for guild in self._bot.guilds:
+                try:
+                    # Get to server channel if they have set server settings for it
+                    guildCog: GuildCog = self._bot.get_cog('GuildCog')
+                    if (guildCog):
+                        result = await guildCog.getServerSettings(id=guild.id)
+                        if (not (result and result["notificationChannelID"])):
+                            continue
+                        
+                        # Print to notification channel based on settings
+                        channel = self._bot.get_channel(result["notificationChannelID"])
+                        if (channel):
+                            await channel.send(embed=embed)
+                            continue
+                    
+                    # Print to these channels if guild does not have guild settings or unable to get channel id
                     channel = discord.utils.get(guild.text_channels, name='priconne-notifications')
                     if (channel):
                         await channel.send(embed=embed)
-            except Exception as e:
-                print(e)
-                print("Can't print")
-    
+                        continue
+
+                    channel = discord.utils.get(guild.text_channels, name='princess-connect-notifications')
+                    if (channel):
+                        await channel.send(embed=embed)
+                except Exception as e:
+                    print(e)
+                    print("Something went wrong with sending a daily update to the server {guild}.")
+        
     
     @princess_connect_daily_update.before_loop
     async def before_daily_update(self):

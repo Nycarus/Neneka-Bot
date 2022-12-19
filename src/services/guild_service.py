@@ -31,3 +31,10 @@ class GuildService:
             result = await self.addGuild(id=id, notificationChannelID=notificationChannelID, commandChannelID=commandChannelID)
 
         return result
+
+    async def getServerSettings (self, id: int):
+        result = await self._guildRepository.findByID(id=id)
+        if (result):
+            return {"notificationChannelID": result.notificationChannelID, "commandChannelID": result.commandChannelID}
+        else:
+            return None
