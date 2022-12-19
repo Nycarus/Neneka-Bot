@@ -34,11 +34,8 @@ class InfoCog(commands.Cog):
                 await ctx.send("There are no current events.")
                 return
 
-            embed = discord.embeds.Embed(title="Current Events", color=discord.Colour.blurple())
-            for result in results:
-                embed.add_field(name=f'{result["name"]}', value=f'{result["startDate"]} to {result["endDate"]}', inline= True)
-            if (ctx.author):
-                embed.set_footer(text=f'{ctx.author.name} requested this command.')
+            embed = self.createEventEmbed(ctx=ctx, title="Current Events", data=results, days=None, relative="endDate")
+            
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)
@@ -62,14 +59,8 @@ class InfoCog(commands.Cog):
                 await ctx.send(f"There are no events ending within {days} {'days' if days > 1 else 'day'}.")
                 return
 
-            embed = discord.embeds.Embed(title="Events Ending", color=discord.Colour.blurple())
-            for result in results:
-                if (result["endDate"]):
-                    embed.add_field(name=f'{result["name"]}', value=f'{result["startDate"]} to {result["endDate"]}\nEnding {result["endDateRelative"]}')
-                else:
-                    embed.add_field(name=f'{result["name"]}', value=f'Starting at {result["startDate"]}\n')
-            if (ctx.author):
-                embed.set_footer(text=f'{ctx.author.name} requested this command.')
+            embed = self.createEventEmbed(ctx=ctx, title="Events Ending", data=results, days=days, relative="endDate")
+            
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)
@@ -94,19 +85,48 @@ class InfoCog(commands.Cog):
                 await ctx.send(f"There are no future events within {days} {'days' if days > 1 else 'day'}.")
                 return
 
-            embed = discord.embeds.Embed(title="Upcoming Events", color=discord.Colour.blurple())
-            for result in results:
-                if (result["endDate"]):
-                    embed.add_field(name=f'{result["name"]}', value=f'{result["startDate"]} to {result["endDate"]}\nStarting {result["startDateRelative"]}')
-                else:
-                    embed.add_field(name=f'{result["name"]}', value=f'Starting at {result["startDate"]}\nStarting {result["startDateRelative"]}')
-            if (ctx.author):
-                embed.set_footer(text=f'{ctx.author.name} requested this command.')
+            embed = self.createEventEmbed(ctx=ctx, title="Upcoming Events", data=results, days=days, relative="startDate")
+            
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)
             await ctx.send("Unable to get events.")
 
+    def createEventEmbed(self, title, data, ctx=None, days: int = None, relative:str=None):
+        embed = discord.embeds.Embed(title=title, color=discord.Colour.blurple())
+        
+        # Adding each event to field value
+        eventInfo = ""
+        for result in data:
+            # Adding title and dates
+            if (result["endDate"]):
+                eventInfo += f'**{result["name"]}**\n{result["startDate"]} to {result["endDate"]}\n'
+            else:
+                eventInfo += f'**{result["name"]}**\nStarting at {result["startDate"]}\n'
+
+            # Adding the timer based on the parameter "relative", otherwise it checks for keys
+            if (relative == "endDate"):
+                eventInfo += f'Ending {result["endDateRelative"]}\n\n'
+            elif(relative == "startDate"):
+                eventInfo += f'Starting {result["startDateRelative"]}\n\n'
+            else:
+                if ('endDateRelative' in result.keys()):
+                    eventInfo += f'Ending {result["endDateRelative"]}\n\n'
+                else:
+                    eventInfo += f'Starting {result["startDateRelative"]}\n\n'
+
+        # Adjusting the field name based on days
+        if (days):
+            name=f"Within {days} {'days' if days > 1 else 'day'}."
+        else:
+            name="Remember to finish them before they end."
+
+        embed.add_field(name=name, value=eventInfo)
+
+        if (ctx and ctx.author):
+            embed.set_footer(text=f'{ctx.author.name} requested this command.')
+
+        return embed
     
     @tasks.loop(hours=24.0)
     async def princess_connect_daily_update(self):
@@ -136,11 +156,11 @@ class InfoCog(commands.Cog):
         current_date = datetime.utcnow()
 
         # Sleep till expected time 14am UTC
-        if (current_date >= current_date.replace(hour=14, minute=0, second=0, microsecond=0)):
+        if (current_date >= current_date.replace(hour=7, minute=58, second=0, microsecond=0)):
             tomorrow = current_date + timedelta(days=1)
-            tomorrow = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+            tomorrow = tomorrow.replace(hour=7, minute=58, second=0, microsecond=0)
         else:
-            tomorrow = current_date.replace(hour=14, minute=0, second=0, microsecond=0)
+            tomorrow = current_date.replace(hour=7, minute=58, second=0, microsecond=0)
 
         seconds = (tomorrow - current_date).total_seconds()
         print(f"Daily reminder in: {seconds} seconds.")
@@ -154,22 +174,24 @@ class InfoCog(commands.Cog):
         eventsEnding = await self._eventService.getEventsEnding(days=2)
         eventsComing = await self._eventService.getEventsUpcoming(days=2)
 
-        # Create embed of all event information
-        embed = discord.embeds.Embed(title="Princess Connect Daily Update", color=discord.Colour.blurple())
-        for event in eventsEnding:
-            embed.add_field(name=f'{event["name"]}', value=f'Ending {event["endDateRelative"]}')
-        for event in eventsComing:
-            embed.add_field(name=f'{event["name"]}', value=f'Starting {event["startDateRelative"]}')
+        if (eventsEnding or eventsComing):
 
-        # Print to every server if possible
-        try:
-            for guild in self._bot.guilds:
-                channel = discord.utils.get(guild.text_channels, name='priconne-notifications')
-                if (channel):
-                    await channel.send(embed=embed)
-        except Exception as e:
-            print(e)
-            print("Can't print")
+            # Delete keywords
+            del eventsComing["endDateRelative"]
+            del eventsEnding["startDateRelative"]
+
+            # Create embed of all event information
+            embed = self.createEventEmbed(title="Princess Connect Daily Update", data = eventsEnding + eventsComing)
+
+            # Print to every server if possible
+            try:
+                for guild in self._bot.guilds:
+                    channel = discord.utils.get(guild.text_channels, name='priconne-notifications')
+                    if (channel):
+                        await channel.send(embed=embed)
+            except Exception as e:
+                print(e)
+                print("Can't print")
     
     
     @princess_connect_daily_update.before_loop
