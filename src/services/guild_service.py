@@ -1,5 +1,5 @@
 from src.utils.database import Database
-from src.models.guild import Guild
+from models.guild_model import Guild
 from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
 

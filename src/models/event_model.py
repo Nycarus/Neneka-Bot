@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from src.models.model import Base
 
-class Event(Base):
+class EventModel(Base):
     __tablename__ = "event"
 
     id = Column(Integer, primary_key=True)

@@ -3,7 +3,7 @@ from discord.ext import tasks, commands
 from src.discord_bot import DiscordBot
 from src.utils.web_scraper import WebScraper
 from src.services.event_service import EventService
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 import asyncio
 
 class InfoCog(commands.Cog):
@@ -115,15 +115,17 @@ class InfoCog(commands.Cog):
         """
 
         print("Updating daily info.")
+        try:
+            print("Checking for expired events.")
+            await self._eventService.cleanExpiredEvents()
 
-        print("Deleting expired events.")
-        await self._eventService.cleanExpiredEvents()
-
-        print("Webscraping crunchyroll princess connect news website.")
-        events = await WebScraper.scrape_crunchyroll_events()
-        if (events):
-            print ("Adding events to database.")
-            await self._eventService.addEvents(events)
+            print("Webscraping crunchyroll princess connect news website.")
+            events = await WebScraper.scrape_crunchyroll_events()
+            if (events):
+                print ("Checking if scraped data contains new events.")
+                await self._eventService.addEvents(events)
+        except Exception as e:
+            print(e) 
 
     
     @tasks.loop(seconds=30)
