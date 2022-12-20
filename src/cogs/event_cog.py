@@ -67,7 +67,6 @@ class InfoCog(commands.Cog):
             print(e)
             await ctx.reply("Unable to get events.")
     
-    
     @events.command("upcoming")
     async def events_upcoming(self, ctx: commands.context.Context, days:int=1):
         """
@@ -99,7 +98,7 @@ class InfoCog(commands.Cog):
         # Adding each event to field value
         eventInfo = ""
         for result in data:
-            # Adding title and dates
+            # Adding event title and dates
             if (result["endDate"]):
                 eventInfo += f'**{result["name"]}**\n{result["startDate"]} to {result["endDate"]}\n'
             else:
@@ -107,14 +106,14 @@ class InfoCog(commands.Cog):
 
             # Adding the timer based on the parameter "relative", otherwise it checks for keys
             if (relative == "endDate"):
-                eventInfo += f'Ending {result["endDateRelative"]}\n\n'
+                eventInfo += f'End: {result["endDateRelative"]}\n\n'
             elif(relative == "startDate"):
-                eventInfo += f'Starting {result["startDateRelative"]}\n\n'
+                eventInfo += f'Start: {result["startDateRelative"]}\n\n'
             else:
                 if ('endDateRelative' in result.keys()):
-                    eventInfo += f'Ending {result["endDateRelative"]}\n\n'
+                    eventInfo += f'End: {result["endDateRelative"]}\n\n'
                 else:
-                    eventInfo += f'Starting {result["startDateRelative"]}\n\n'
+                    eventInfo += f'Start: {result["startDateRelative"]}\n\n'
 
         # Adjusting the field name based on days
         if (days):
@@ -189,14 +188,17 @@ class InfoCog(commands.Cog):
                     guildCog: GuildCog = self._bot.get_cog('GuildCog')
                     if (guildCog):
                         result = await guildCog.getServerSettings(id=guild.id)
-                        if (not (result and result["notificationChannelID"])):
-                            continue
-                        
-                        # Print to notification channel based on settings
-                        channel = self._bot.get_channel(result["notificationChannelID"])
-                        if (channel):
-                            await channel.send(embed=embed)
-                            continue
+                        if (result and "notificationChannelID" in result.keys() and result["notificationChannelID"]):
+                            # Print to notification channel based on settings
+                            channel = self._bot.get_channel(result["notificationChannelID"])
+                            if (channel):
+                                if ("roleID" not in result.keys() or not result['roleID']):
+                                    await channel.send(embed=embed)
+                                    continue
+                                else:
+                                    roleName = f"<@&{result['roleID']}>"
+                                    await channel.send(roleName, embed=embed)
+                                    continue
                     
                     # Print to these channels if guild does not have guild settings or unable to get channel id
                     channel = discord.utils.get(guild.text_channels, name='priconne-notifications')
@@ -207,10 +209,10 @@ class InfoCog(commands.Cog):
                     channel = discord.utils.get(guild.text_channels, name='princess-connect-notifications')
                     if (channel):
                         await channel.send(embed=embed)
+                        continue
                 except Exception as e:
                     print(e)
-                    print("Something went wrong with sending a daily update to the server {guild}.")
-        
+                    print(f"Something went wrong with sending a daily update to the server {guild}.")
     
     @princess_connect_daily_update.before_loop
     async def before_daily_update(self):

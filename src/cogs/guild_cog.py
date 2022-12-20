@@ -35,8 +35,8 @@ class GuildCog(commands.Cog):
             print(e)
             print(f'{guild.owner} has their dms turned off')
 
-    @commands.hybrid_command(name="setup")
-    async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = None, commandChannel:discord.TextChannel = None):
+    @commands.hybrid_command(name="setup", pass_context=True)
+    async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = None, role:discord.Role = None):
         if (not ctx.message.guild):
             await ctx.reply("This command can only be used in a server.")
             return
@@ -44,30 +44,27 @@ class GuildCog(commands.Cog):
         # prevent people from using this command if they are not owner or admin
         if (not (ctx.author.guild_permissions.administrator or ctx.author == ctx.guild.owner)):
             await ctx.reply("You do not have permission to use this command.")
-            return
-
-        if (not (notificationChannel or commandChannel)):
-            await ctx.reply("Please provide a notification or command channel.")
-            return
 
         # check if channels are the proper type
         if (notificationChannel and type(notificationChannel) != discord.TextChannel):
             await ctx.reply("Please enter a proper notification channel. You can do this with #channel.")
             return
-        if (commandChannel and type(commandChannel) != discord.TextChannel):
-            await ctx.reply("Please enter a proper command channel. You can do this with #channel.")
+
+        # check if roles are the proper type
+        if (role and type(role) != discord.Role):
+            await ctx.reply("Please enter a proper role.")
             return
-        
+    
         # Attempt to update guild information
         try:
             notificationChannelID = None
-            commandChannelID = None
+            roleID = None
             if (notificationChannel):
                 notificationChannelID = notificationChannel.id
-            if(commandChannel):
-                commandChannelID = commandChannel.id
+            if (role):
+                roleID = role.id
 
-            result = await self._guildServices.updateGuild(id=ctx.message.guild.id, notificationChannelID=notificationChannelID, commandChannelID=commandChannelID)
+            result = await self._guildServices.updateGuild(id=ctx.message.guild.id, notificationChannelID=notificationChannelID, roleID=roleID)
 
             if (result):
                 await ctx.reply("Server has successfully updated settings.")

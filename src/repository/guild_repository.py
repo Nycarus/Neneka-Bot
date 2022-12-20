@@ -42,10 +42,10 @@ class GuildRespository:
                 update = {}
                 if (guild.notificationChannelID):
                     update["notificationChannelID"] = guild.notificationChannelID
-                if (guild.commandChannelID):
-                    update["commandChannelID"] = guild.commandChannelID
+                if (guild.roleID):
+                    update["roleID"] = guild.roleID
 
-                query: GuildModel = session.query(GuildModel).filter(GuildModel.id == guild.id).first()
+                session.query(GuildModel).filter(GuildModel.id == guild.id).update(update)
                 
             except Exception as e:
                 print (e)
@@ -56,7 +56,7 @@ class GuildRespository:
                 session.commit()
                 return True
 
-    async def update(self, id: int, notificationChannelID : int=None, commandChannelID : int=None) -> bool:
+    async def update(self, id: int, notificationChannelID : int=None, roleID:int = None) -> bool:
         if (type(id) != int):
             return False
 
@@ -64,8 +64,8 @@ class GuildRespository:
             if (notificationChannelID != None):
                 return False
 
-        if (type(commandChannelID) != int):
-            if (commandChannelID != None):
+        if (type(roleID) != int):
+            if (roleID != None):
                 return False
 
         with self._session() as session:
@@ -74,8 +74,8 @@ class GuildRespository:
                 update = {}
                 if (notificationChannelID):
                     update["notificationChannelID"] = notificationChannelID
-                if (commandChannelID):
-                    update["commandChannelID"] = commandChannelID
+                if (roleID):
+                    update["roleID"] = roleID
 
                 session.query(GuildModel).filter(GuildModel.id == id).update(update)
             except Exception as e:

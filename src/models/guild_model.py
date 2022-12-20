@@ -6,4 +6,4 @@ class GuildModel(Base):
 
     id = Column(BIGINT, primary_key=True)
     notificationChannelID = Column(BIGINT, nullable=True)
-    commandChannelID = Column(BIGINT, nullable=True)
+    roleID = Column(BIGINT, nullable=True)
