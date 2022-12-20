@@ -36,7 +36,7 @@ class GuildCog(commands.Cog):
             print(e)
             print(f'{guild.owner} has their dms turned off')
 
-    @commands.hybrid_command(name="setup", pass_context=True)
+    @commands.hybrid_command(name="setup", description="Setup notification channel and ping role settings.", pass_context=True)
     async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = None, role:discord.Role = None):
         if (not ctx.message.guild):
             await ctx.reply("This command can only be used in a server.")

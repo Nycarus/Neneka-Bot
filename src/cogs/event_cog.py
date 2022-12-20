@@ -22,7 +22,7 @@ class InfoCog(commands.Cog):
     async def on_ready(self):
         print("info cog is ready.")
 
-    @commands.hybrid_group(name="event", pass_context=True, aliases=["events"])
+    @commands.hybrid_group(name="event", description="Get events.", pass_context=True, aliases=["events"])
     async def events(self, ctx: commands.context.Context):
         """
         This command sends the current event details within an embed message to the requester.
@@ -42,7 +42,7 @@ class InfoCog(commands.Cog):
             print(e)
             await ctx.reply("Unable to get events.")
     
-    @events.command(name="ending")
+    @events.command(name="ending", description="Get events ending soon.")
     async def events_ending(self, ctx: commands.context.Context, days:int=1):
         """
         This command sends the event details, that are ending, within an embed message to the requester.
@@ -67,7 +67,7 @@ class InfoCog(commands.Cog):
             print(e)
             await ctx.reply("Unable to get events.")
     
-    @events.command("upcoming")
+    @events.command(name="upcoming", description="Get upcoming events.")
     async def events_upcoming(self, ctx: commands.context.Context, days:int=1):
         """
         This command sends the upcoming event details within an embed message to the requester.
