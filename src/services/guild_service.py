@@ -1,6 +1,5 @@
 from src.repository.guild_repository import GuildRespository
 from src.models.guild_model import GuildModel
-import discord
 
 class GuildService:
     def __init__(self):

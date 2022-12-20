@@ -1,6 +1,5 @@
 from src.repository.reminder_repository import ReminderRespository
 from src.models.reminder_model import ReminderModel
-import discord
 from datetime import datetime
 
 class ReminderService:

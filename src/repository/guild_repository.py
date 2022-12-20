@@ -26,7 +26,7 @@ class GuildRespository:
             except Exception as e:
                 print (e)
                 session.rollback()
-                print("Database insert error has occured with Event.")
+                print("Database insert error has occured with Guild.")
                 return False
             else:
                 session.commit()
@@ -50,7 +50,7 @@ class GuildRespository:
             except Exception as e:
                 print (e)
                 session.rollback()
-                print("Database update error has occured with Event.")
+                print("Database update error has occured with Guild.")
                 return False
             else:
                 session.commit()
@@ -81,7 +81,7 @@ class GuildRespository:
             except Exception as e:
                 print (e)
                 session.rollback()
-                print("Database update error has occured with Event.")
+                print("Database update error has occured with Guild.")
                 return False
             else:
                 session.commit()
@@ -98,7 +98,7 @@ class GuildRespository:
             except Exception as e:
                 print (e)
                 session.rollback()
-                print("Database delete error has occured with Event.")
+                print("Database delete error has occured with Guild.")
                 return False
             else:
                 session.commit()
@@ -115,7 +115,7 @@ class GuildRespository:
             except Exception as e:
                 print (e)
                 session.rollback()
-                print("Database query error has occured with Event.")
+                print("Database query error has occured with Guild.")
                 return None
             else:
                 session.commit()

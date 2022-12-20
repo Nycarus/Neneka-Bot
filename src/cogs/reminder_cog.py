@@ -4,7 +4,7 @@ from src.discord_bot import DiscordBot
 from src.services.reminder_services import ReminderService
 from datetime import datetime, timedelta
 from src.models.reminder_model import ReminderModel
-import asyncio
+import textwrap
 
 class ReminderCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
@@ -23,6 +23,7 @@ class ReminderCog(commands.Cog):
     async def reminder(self, ctx: commands.context.Context, days:int, hours:int, minutes:int, *, description=None):
         if (days <= 0 and hours <= 0 and minutes <= 0 or days < 0 or hours < 0 or minutes < 0):
             await ctx.reply("Please enter the proper amount of time to make the reminder.")
+            return
 
         try:
             description = "".join(description)
@@ -42,7 +43,7 @@ class ReminderCog(commands.Cog):
                 dateDifference = date - epoch_time
 
                 embed = discord.embeds.Embed(title="Reminder", 
-                    description=
+                    description=textwrap.dedent(
                     f"""
                     I will notify you in {days} {'days' if days > 1 else 'day'}, {hours} {'hours' if hours > 1 else 'hour'}, and {minutes} {'minutes' if minutes > 1 else 'minute'}.
                     Date: {f'<t:{int(dateDifference.total_seconds())}:f>'}
@@ -50,7 +51,7 @@ class ReminderCog(commands.Cog):
                     
                     **With the message:**
                     {description}
-                    """,
+                    """),
                     color=discord.Colour.blurple())
 
                 embed.set_footer(text="Make sure the bot can DM you just in case.")
@@ -72,8 +73,6 @@ class ReminderCog(commands.Cog):
         
         # Send Reminders that are old
         if (reminders):
-            print("sending reminders")
-            
             for reminder in reminders:
                 try:
                     # Creating message
@@ -81,13 +80,13 @@ class ReminderCog(commands.Cog):
                     currentDate = reminder.endDate - epoch_time
                     previousDate = reminder.startDate - epoch_time
                     embed = discord.embeds.Embed(title=f"Reminder from {f'<t:{int(previousDate.total_seconds())}:f>'}.", 
-                        description=
+                        description=textwrap.dedent(
                         f"""
                         Hello, today is {f'<t:{int(currentDate.total_seconds())}:f>'} and I am here to notify you about your reminder.
                         
                         **Your message:**
                         {reminder.description}
-                        """,
+                        """),
                         color=discord.Colour.blurple())
 
                     # attempt to print to guild channel, if bot still has access

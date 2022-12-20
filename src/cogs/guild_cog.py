@@ -1,7 +1,8 @@
 import discord
-from discord.ext import tasks, commands
+from discord.ext import commands
 from src.discord_bot import DiscordBot
 from src.services.guild_service import GuildService
+import textwrap
 
 class GuildCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
@@ -23,13 +24,13 @@ class GuildCog(commands.Cog):
             # Send help embed to the owner's dms.
             embed = discord.embeds.Embed(title="Hello!", description="Time to setup this bot to receive notifications.", color=discord.Colour.blurple())
             embed.add_field(name="Instructions:", inline=True,
-            value=
+            value=textwrap.dedent(
             f"""
-            - Use the command `;setup #notification-channel #bot-command-channel` to choose channels where this bot will send messages to.
+            - Use the command `;setup #notification-channel @notification-role` to choose channels where this bot will send messages to.
             - Alternatively, you may choose to create a `#princess-connect-notification` or `#priconne-notification` channel to receive notifications.
 
             - Use `;help` to see a list of commands.
-            """)
+            """))
             await guild.owner.send(embed=embed)
         except Exception as e:
             print(e)
