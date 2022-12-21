@@ -34,7 +34,8 @@ class GuildCog(commands.Cog):
 
             - Use `/help` to see a list of commands.
             """))
-            await guild.owner.send(embed=embed)
+            async with ctx.message.channel.typing():
+                await guild.owner.send(embed=embed)
         except Exception as e:
             self._logger.error(e)
             self._logger.error(f'{guild.owner} has their dms turned off')
@@ -45,22 +46,26 @@ class GuildCog(commands.Cog):
         Setup server by assigning notification channel and discord ping role.
         """
         if (not ctx.message.guild):
-            await ctx.reply("This command can only be used in a server.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("This command can only be used in a server.")
             return
 
         # prevent people from using this command if they are not owner or admin
         if (not (ctx.author.guild_permissions.administrator or ctx.author == ctx.guild.owner)):
-            await ctx.reply("You do not have permission to use this command.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("You do not have permission to use this command.")
             return
 
         # check if channels are the proper type
         if (notificationChannel and type(notificationChannel) != discord.TextChannel):
-            await ctx.reply("Please enter a proper notification channel. You can do this with #channel.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Please enter a proper notification channel. You can do this with #channel.")
             return
 
         # check if roles are the proper type
         if (role and type(role) != discord.Role):
-            await ctx.reply("Please enter a proper role.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Please enter a proper role.")
             return
     
         # Attempt to update guild information
@@ -86,13 +91,16 @@ class GuildCog(commands.Cog):
                         description=message,
                         color=discord.Colour.blurple())
 
-                await ctx.reply(embed=embed)
+                async with ctx.message.channel.typing():
+                    await ctx.reply(embed=embed)
             else:
-                await ctx.reply("Unable to update server settings.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply("Unable to update server settings.")
             
         except Exception as e:
             self._logger.error(e)
-            await ctx.reply("Guild setup has failed unexpectedly. Make sure the bot has access to those channels and they are spelled correctly.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Guild setup has failed unexpectedly. Make sure the bot has access to those channels and they are spelled correctly.")
 
     @setup.command(name="delete", description="Delete server's event notification settings.", pass_context=True)
     async def setupDelete(self, ctx: commands.context.Context):
@@ -100,20 +108,24 @@ class GuildCog(commands.Cog):
         Delete server's settings for notification channel and discord ping role.
         """
         if (not ctx.message.guild):
-            await ctx.reply("This command can only be used in a server.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("This command can only be used in a server.")
             return
 
         # prevent people from using this command if they are not owner or admin
         if (not (ctx.author.guild_permissions.administrator or ctx.author == ctx.guild.owner)):
-            await ctx.reply("You do not have permission to use this command.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("You do not have permission to use this command.")
             return
 
         result = await self._guildServices.deleteGuild(id=ctx.message.guild.id)
 
         if (result):
-            await ctx.reply("Guild settings have been deleted. Use the setup command to re-enable event heads-up.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Guild settings have been deleted. Use the setup command to re-enable event heads-up.")
         else:
-            await ctx.reply("Unable to delete server settings.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Unable to delete server settings.")
 
     async def getServerSettings(self, id: int):
         return await self._guildServices.getServerSettings(id=id)

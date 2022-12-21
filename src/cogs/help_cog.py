@@ -41,7 +41,8 @@ class HelpCog(commands.Cog):
         button = discord.ui.Button(style=discord.ButtonStyle.blurple, label="Github", url="https://github.com/Nycarus/Neneka-Bot")
         view.add_item(button)
         
-        await ctx.reply(embed=embed, view=view)
+        async with ctx.message.channel.typing():
+            await ctx.reply(embed=embed, view=view)
 
 async def setup(bot: DiscordBot):
     await bot.add_cog(HelpCog(bot=bot))

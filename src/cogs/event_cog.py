@@ -34,15 +34,18 @@ class InfoCog(commands.Cog):
             results = await self._eventService.getCurrentEvents()
 
             if (not results):
-                await ctx.reply("There are no current events.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply("There are no current events.")
                 return
 
             embed = self.createEventEmbed(ctx=ctx, title="Current Events", data=results, days=None, relative="endDate")
             
-            await ctx.reply(embed=embed)
+            async with ctx.message.channel.typing():
+                await ctx.reply(embed=embed)
         except Exception as e:
             self._logger.error(e)
-            await ctx.reply("Unable to get events.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Unable to get events.")
     
     @events.command(name="ending", description="Get events ending soon.")
     async def events_ending(self, ctx: commands.context.Context, days:int=commands.parameter(default=1, description="The number of days from now")):
@@ -51,21 +54,25 @@ class InfoCog(commands.Cog):
         """
         try:
             if (type(days) != int or days <= 0):
-                await ctx.reply("Please provide a valid number of days.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply("Please provide a valid number of days.")
                 return
 
             results = await self._eventService.getEventsEnding(days)
 
             if (not results):
-                await ctx.reply(f"There are no events ending within {days} {'days' if days > 1 else 'day'}.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply(f"There are no events ending within {days} {'days' if days > 1 else 'day'}.")
                 return
 
             embed = self.createEventEmbed(ctx=ctx, title="Events Ending", data=results, days=days, relative="endDate")
             
-            await ctx.reply(embed=embed)
+            async with ctx.message.channel.typing():
+                await ctx.reply(embed=embed)
         except Exception as e:
             self._logger.error(e)
-            await ctx.reply("Unable to get events.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Unable to get events.")
     
     @events.command(name="upcoming", description="Get upcoming events.")
     async def events_upcoming(self, ctx: commands.context.Context, days:int=commands.parameter(default=1, description="The number of days from now")):
@@ -74,13 +81,15 @@ class InfoCog(commands.Cog):
         """
         try:
             if (type(days) != int or days <= 0):
-                await ctx.reply("Please provide a valid number of days.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply("Please provide a valid number of days.")
                 return
 
             results = await self._eventService.getEventsUpcoming(days)
 
             if (not results):
-                await ctx.reply(f"There are no future events within {days} {'days' if days > 1 else 'day'}.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply(f"There are no future events within {days} {'days' if days > 1 else 'day'}.")
                 return
 
             embed = self.createEventEmbed(ctx=ctx, title="Upcoming Events", data=results, days=days, relative="startDate")
@@ -88,7 +97,8 @@ class InfoCog(commands.Cog):
             await ctx.reply(embed=embed)
         except Exception as e:
             self._logger.error(e)
-            await ctx.reply("Unable to get events.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Unable to get events.")
 
     def createEventEmbed(self, title:str, data:str, ctx:commands.context.Context=None, days: int = None, relative:str=None):
         embed = discord.embeds.Embed(title=title, color=discord.Colour.blurple())
@@ -195,18 +205,21 @@ class InfoCog(commands.Cog):
                                     continue
                                 else:
                                     roleName = f"<@&{result['roleID']}>"
-                                    await channel.send(roleName, embed=embed)
+                                    async with channel.typing():
+                                        await channel.send(roleName, embed=embed)
                                     continue
                     
                     # Print to these channels if guild does not have guild settings or unable to get channel id
                     channel = discord.utils.get(guild.text_channels, name='priconne-notifications')
                     if (channel):
-                        await channel.send(embed=embed)
+                        async with channel.typing():
+                            await channel.send(embed=embed)
                         continue
 
                     channel = discord.utils.get(guild.text_channels, name='princess-connect-notifications')
                     if (channel):
-                        await channel.send(embed=embed)
+                        async with channel.typing():
+                            await channel.send(embed=embed)
                         continue
                 except Exception as e:
                     self._logger.error(e)

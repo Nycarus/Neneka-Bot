@@ -30,11 +30,13 @@ class ReminderCog(commands.Cog):
         :param 
         """
         if (days <= 0 and hours <= 0 and minutes <= 0 or days < 0 or hours < 0 or minutes < 0):
-            await ctx.reply("Please enter the proper amount of time to make the reminder.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Please enter the proper amount of time to make the reminder.")
             return
 
         if (not description):
-            await ctx.reply("Please enter the proper description for the reminder.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Please enter the proper description for the reminder.")
             return
 
         try:
@@ -68,9 +70,11 @@ class ReminderCog(commands.Cog):
 
                 embed.set_footer(text="Make sure the bot can DM you just in case.")
 
-                await ctx.reply(embed=embed)
+                async with ctx.message.channel.typing():
+                    await ctx.reply(embed=embed)
             else:
-                await ctx.reply("I was not able to make the reminder.")
+                async with ctx.message.channel.typing():
+                    await ctx.reply("I was not able to make the reminder.")
         except Exception as e:
             self._logger.error(e)
 
@@ -81,9 +85,11 @@ class ReminderCog(commands.Cog):
         """
         result = await self._reminderService.deleteAllReminders(userID=ctx.author.id)
         if (result):
-            await ctx.reply("Successfully deleted all of your reminders.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Successfully deleted all of your reminders.")
         else:
-            await ctx.reply("Unable to delete any of your reminders. You may not have any reminders.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Unable to delete any of your reminders. You may not have any reminders.")
 
     @tasks.loop(minutes=1)
     async def executeReminders(self):
@@ -117,7 +123,8 @@ class ReminderCog(commands.Cog):
                         if (guild and guild.get_member(reminder.userID)): # check if user is still in the guild
                             channel = self._bot.get_channel(reminder.channelID)
                             if (channel): # check if channel still exist
-                                await channel.send(f"<@{reminder.userID}>", embed=embed)
+                                async with channel.typing():
+                                    await channel.send(f"<@{reminder.userID}>", embed=embed)
                                 return
                     
                     # Print to user's DMs as backup if printing to channel fails

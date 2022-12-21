@@ -18,20 +18,24 @@ class FunCog(commands.Cog):
     @commands.hybrid_command(name="coinflip", description="Does a coin flip.")
     async def coinflip(self, ctx: commands.context.Context):
         flip = random.randint(1,2)
-        await ctx.reply("Heads." if flip == 1 else "Tails.")
+        async with ctx.message.channel.typing():
+            await ctx.reply("Heads." if flip == 1 else "Tails.")
 
     @commands.hybrid_command(name="random", description="Choose a number between 1 to max number.")
     async def random(self, ctx: commands.context.Context, number:int = commands.parameter(default=100, description="The max random number.")):
         if (number <= 1 or number > 999999):
-            await ctx.reply("Choose a number higher than 1, but lower or equals to 999999")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Choose a number higher than 1, but lower or equals to 999999")
             return
         result = random.randint(1, number)
-        await ctx.reply(f"{result} out of {number}.")
+        async with ctx.message.channel.typing():
+            await ctx.reply(f"{result} out of {number}.")
 
     @commands.hybrid_command(name="should", description="Ask the bot for random answers.")
     async def should(self, ctx: commands.context.Context, *, description = commands.parameter(default=None, description="Question.")):
         if (not description):
-            await ctx.reply("Add a description.")
+            async with ctx.message.channel.typing():
+                await ctx.reply("Add a description.")
             return
 
         result = random.randint(1, 10)
@@ -42,8 +46,9 @@ class FunCog(commands.Cog):
             message = "Yes."
         else:
             message = "No."
-
-        await ctx.reply(message)
+            
+        async with ctx.message.channel.typing():
+            await ctx.reply(message)
 
 async def setup(bot: DiscordBot):
     await bot.add_cog(FunCog(bot=bot))
