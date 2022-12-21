@@ -206,7 +206,7 @@ class EventRespository:
                 if(order == "desc"):
                     query = query.order_by(EventModel.endDate.desc())
                 elif (order == "asc"):
-                    query = query.order_by(EventModel.endDate.desc())
+                    query = query.order_by(EventModel.endDate.asc())
 
                 if (date):
                     query = query.filter(EventModel.endDate==date)
@@ -241,7 +241,7 @@ class EventRespository:
                 if(order == "desc"):
                     query = query.order_by(EventModel.endDate.desc())
                 elif (order == "asc"):
-                    query = query.order_by(EventModel.endDate.desc())
+                    query = query.order_by(EventModel.endDate.asc())
                 
                 results = query.filter(EventModel.startDate <= date, EventModel.endDate >= date).all()
 
@@ -274,7 +274,7 @@ class EventRespository:
                 if(order == "desc"):
                     query = query.order_by(EventModel.startDate.desc())
                 elif (order == "asc"):
-                    query = query.order_by(EventModel.startDate.desc())
+                    query = query.order_by(EventModel.startDate.asc())
                 
                 results = query.filter(EventModel.startDate >= startDate, EventModel.startDate <= endDate).all()
 
@@ -307,7 +307,7 @@ class EventRespository:
                 if(order == "desc"):
                     query = query.order_by(EventModel.endDate.desc())
                 elif (order == "asc"):
-                    query = query.order_by(EventModel.endDate.desc())
+                    query = query.order_by(EventModel.endDate.asc())
                 
                 results = query.filter(EventModel.endDate >= startDate, EventModel.endDate <= endDate).all()
 
@@ -337,7 +337,7 @@ class EventRespository:
                 if(order == "desc"):
                     query = query.order_by(EventModel.endDate.desc())
                 elif (order == "asc"):
-                    query = query.order_by(EventModel.endDate.desc())
+                    query = query.order_by(EventModel.endDate.asc())
                 
                 results = query.filter(EventModel.endDate <= date).all()
 

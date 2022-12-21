@@ -76,7 +76,7 @@ class EventService:
             self._logger.info("Events are added to database successfully.")
     
     async def getCurrentEvents(self):
-        results = await self._eventRespository.findAllByDateBetween(date=datetime.utcnow(), order="desc")
+        results = await self._eventRespository.findAllByDateBetween(date=datetime.utcnow(), order="asc")
         
         data = []
         for result in results:
@@ -90,7 +90,7 @@ class EventService:
         return data
 
     async def getEventsEnding(self, days:int):
-        results = await self._eventRespository.findAllByEndDateBetween(startDate=datetime.utcnow(), endDate = datetime.utcnow() + timedelta(days=days), order="desc")
+        results = await self._eventRespository.findAllByEndDateBetween(startDate=datetime.utcnow(), endDate = datetime.utcnow() + timedelta(days=days), order="asc")
 
         data = []
         for result in results:
@@ -104,7 +104,7 @@ class EventService:
         return data
 
     async def getEventsUpcoming(self, days:int):
-        results = await self._eventRespository.findAllByStartDateBetween(startDate=datetime.utcnow(), endDate = datetime.utcnow() + timedelta(days=days), order="desc")
+        results = await self._eventRespository.findAllByStartDateBetween(startDate=datetime.utcnow(), endDate = datetime.utcnow() + timedelta(days=days), order="asc")
 
         data = []
         for result in results:
