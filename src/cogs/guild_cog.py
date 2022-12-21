@@ -29,19 +29,23 @@ class GuildCog(commands.Cog):
             embed.add_field(name="Instructions:", inline=True,
             value=textwrap.dedent(
             f"""
-            - Use the command `/setup` to choose channels where this bot will send messages to.
+            - Use the command `/setup server` to choose channels where this bot will send messages to.
             - Alternatively, you may choose to create a `#princess-connect-notification` or `#priconne-notification` channel to receive notifications.
 
             - Use `/help` to see a list of commands.
             """))
-            async with ctx.message.channel.typing():
-                await guild.owner.send(embed=embed)
+            
+            await guild.owner.send(embed=embed)
         except Exception as e:
             self._logger.error(e)
             self._logger.error(f'{guild.owner} has their dms turned off')
 
-    @commands.hybrid_group(name="setup", description="Setup server's notification settings for upcoming/ending princess connect events.", pass_context=True)
-    async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = commands.parameter(default=None, description="The channel where the bot will post 2-days heads up during reset."), role:discord.Role = commands.parameter(default=None, description="The role the bot will ping for the heads up.")):
+    @commands.hybrid_group(name="setup", with_app_command=True, description="Setup server settings.", pass_context=True)
+    async def setup(self, ctx:commands.context.Context):
+        pass
+
+    @setup.command(name="server", with_app_command=True, description="Setup server's notification settings for upcoming/ending princess connect events.", pass_context=True)
+    async def setupServer(self, ctx: commands.context.Context, channel:discord.TextChannel = commands.parameter(description="The channel for daily notifications."), role:discord.Role = commands.parameter(default=None, description="The role the bot will ping for notifications.")):
         """
         Setup server by assigning notification channel and discord ping role.
         """
@@ -57,7 +61,7 @@ class GuildCog(commands.Cog):
             return
 
         # check if channels are the proper type
-        if (notificationChannel and type(notificationChannel) != discord.TextChannel):
+        if (channel and type(channel) != discord.TextChannel):
             async with ctx.message.channel.typing():
                 await ctx.reply("Please enter a proper notification channel. You can do this with #channel.")
             return
@@ -72,8 +76,8 @@ class GuildCog(commands.Cog):
         try:
             notificationChannelID = None
             roleID = None
-            if (notificationChannel):
-                notificationChannelID = notificationChannel.id
+            if (channel):
+                notificationChannelID = channel.id
             if (role):
                 roleID = role.id
 
@@ -82,8 +86,8 @@ class GuildCog(commands.Cog):
             if (result):
                 message = "Server has successfully updated settings."
                 message += "\n\nThe following has been updated:"
-                if (notificationChannel):
-                    message += f"\nChannel: {notificationChannel}"
+                if (channel):
+                    message += f"\nChannel: {channel}"
                 if (role):
                     message += f"\nRole Ping: {role}"
 
@@ -102,7 +106,7 @@ class GuildCog(commands.Cog):
             async with ctx.message.channel.typing():
                 await ctx.reply("Guild setup has failed unexpectedly. Make sure the bot has access to those channels and they are spelled correctly.")
 
-    @setup.command(name="delete", description="Delete server's event notification settings.", pass_context=True)
+    @setup.command(name="delete", with_app_command=True, description="Delete server's event notification settings.", pass_context=True)
     async def setupDelete(self, ctx: commands.context.Context):
         """
         Delete server's settings for notification channel and discord ping role.

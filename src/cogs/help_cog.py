@@ -14,25 +14,25 @@ class HelpCog(commands.Cog):
     async def on_ready(self):
         self._logger.info("help cog is ready.")
 
-    @commands.hybrid_command(name="help")
+    @commands.hybrid_command(name="help", with_app_command=True, description="Display list of commands.")
     async def help(self, ctx: commands.context.Context):
         message = textwrap.dedent(
             f"""
             __**User Commands**__
-            **/event** - Displays current events.
+            **/event current** - Displays current events.
             **/event upcoming** - Displays upcoming events.
             **/event ending** - Displays events ending.
-            **/reminder** - Add a new reminder.
+            **/reminder add** - Add a new reminder.
             **/reminder delete** - Delete all your reminders.
             
             __**Misc**__
-            **/help** - Gets a list of commands.
+            **/help** - Displays a list of commands.
             **/coinflip** - Flip a coin.
-            **/random** - Chooses a number between 1 to X.
+            **/random** - Chooses a number between 1 to X. Bot chooses.
             **/should** - Ask a question, bot will give a vague answer. 
 
             __**Setting Commands**__
-            **/setup** - Setup notification and ping role server settings.
+            **/setup server** - Setup notification and ping role server settings.
             **/setup delete** - Delete server notification settings.
             """)
         embed = discord.embeds.Embed(title="Command List", description=message, color=discord.Colour.blurple())

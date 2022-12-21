@@ -25,8 +25,12 @@ class InfoCog(commands.Cog):
     async def on_ready(self):
         self._logger.info("info cog is ready.")
 
-    @commands.hybrid_group(name="event", description="Get the dates of princess connect updates and events.", pass_context=True, aliases=["events"])
+    @commands.hybrid_group(name="event", with_app_command=True, description="Get the dates of princess connect updates and events.", pass_context=True, aliases=["events"])
     async def events(self, ctx: commands.context.Context):
+        pass
+
+    @events.command(name="current", with_app_command=True, description="Display current events.", pass_context=True)
+    async def events_current(self, ctx: commands.context.Context):
         """
         Displays current, oncoming, or ending events. Default command gets current events.
         """
@@ -47,8 +51,8 @@ class InfoCog(commands.Cog):
             async with ctx.message.channel.typing():
                 await ctx.reply("Unable to get events.")
     
-    @events.command(name="ending", description="Get events ending soon.")
-    async def events_ending(self, ctx: commands.context.Context, days:int=commands.parameter(default=1, description="The number of days from now")):
+    @events.command(name="ending", with_app_command=True, description="Displays events ending soon.")
+    async def events_ending(self, ctx: commands.context.Context, days:int=commands.parameter(default=1, description="The number of days from now.")):
         """
         Displays events that are ending within a certain amount of days.
         """
@@ -74,8 +78,8 @@ class InfoCog(commands.Cog):
             async with ctx.message.channel.typing():
                 await ctx.reply("Unable to get events.")
     
-    @events.command(name="upcoming", description="Get upcoming events.")
-    async def events_upcoming(self, ctx: commands.context.Context, days:int=commands.parameter(default=1, description="The number of days from now")):
+    @events.command(name="upcoming", with_app_command=True, description="Displays upcoming events.")
+    async def events_upcoming(self, ctx: commands.context.Context, days:int=commands.parameter(default=1, description="The number of days from now.")):
         """
         Displays events that are arriving in a certain number of days. 
         """

@@ -15,13 +15,13 @@ class FunCog(commands.Cog):
     async def on_ready(self):
         self._logger.info("fun cog is ready.")
 
-    @commands.hybrid_command(name="coinflip", description="Does a coin flip.")
+    @commands.hybrid_command(name="coinflip", with_app_command=True, description="Does a coin flip.")
     async def coinflip(self, ctx: commands.context.Context):
         flip = random.randint(1,2)
         async with ctx.message.channel.typing():
             await ctx.reply("Heads." if flip == 1 else "Tails.")
 
-    @commands.hybrid_command(name="random", description="Choose a number between 1 to max number.")
+    @commands.hybrid_command(name="random", with_app_command=True, description="Chooses a number between 1 to X. The bot will choose one.")
     async def random(self, ctx: commands.context.Context, number:int = commands.parameter(default=100, description="The max random number.")):
         if (number <= 1 or number > 999999):
             async with ctx.message.channel.typing():
@@ -31,8 +31,8 @@ class FunCog(commands.Cog):
         async with ctx.message.channel.typing():
             await ctx.reply(f"{result} out of {number}.")
 
-    @commands.hybrid_command(name="should", description="Ask the bot for random answers.")
-    async def should(self, ctx: commands.context.Context, *, description = commands.parameter(default=None, description="Question.")):
+    @commands.hybrid_command(name="should", with_app_command=True, description="Ask a question, bot will give a vague answer.")
+    async def should(self, ctx: commands.context.Context, *, description = commands.parameter(default=None, description="The question.")):
         if (not description):
             async with ctx.message.channel.typing():
                 await ctx.reply("Add a description.")

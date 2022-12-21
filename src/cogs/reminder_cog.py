@@ -22,17 +22,23 @@ class ReminderCog(commands.Cog):
     async def on_ready(self):
         self._logger.info("reminder cog is ready.")
 
-    @commands.hybrid_group(name="reminder", with_app_command=True, description="Make a reminder to yourself.", aliases=["remind, remindme, reminders"])
-    async def reminder(self, ctx: commands.context.Context, days:int = commands.parameter(default=0, description="The number of days from now."), hours:int = commands.parameter(default=0, description="The number of hours from now."), minutes:int = commands.parameter(default=0, description="The number of minutes from now."), *, description= commands.parameter(default=None, description="The description of the reminder.")):
+    @commands.hybrid_group(name="reminder", with_app_command=True, description="Make a reminders for yourself.", aliases=["remind, remindme, reminders"])
+    async def reminder(self, ctx: commands.context.Context):
+        pass
+
+    @reminder.command(name="add", with_app_command=True, description="Make a reminder to yourself.")
+    async def reminderAdd(self, ctx: commands.context.Context, days:int = commands.parameter(default=0, description="The number of days from now."), hours:int = commands.parameter(default=0, description="The number of hours from now."), minutes:int = commands.parameter(default=0, description="The number of minutes from now."), *, description= commands.parameter(default=None, description="The description of the reminder.")):
         """
         Add a new reminder.
-
-        :param 
         """
-        if (days <= 0 and hours <= 0 and minutes <= 0 or days < 0 or hours < 0 or minutes < 0):
+        
+        if (days < 0 or hours < 0 or minutes < 0):
             async with ctx.message.channel.typing():
                 await ctx.reply("Please enter the proper amount of time to make the reminder.")
             return
+
+        if (days == 0 and hours == 0 and minutes == 0):
+            minutes = 1
 
         if (not description):
             async with ctx.message.channel.typing():
