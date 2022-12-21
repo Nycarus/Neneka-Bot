@@ -108,9 +108,9 @@ class InfoCog(commands.Cog):
         for result in data:
             # Adding event title and dates
             if (result["endDate"]):
-                eventInfo += f'**{result["name"]}**\n{result["startDate"]} to {result["endDate"]}\n'
+                eventInfo += f'__**{result["name"]}**__\n{result["startDate"]} to {result["endDate"]}\n'
             else:
-                eventInfo += f'**{result["name"]}**\nStarting at {result["startDate"]}\n'
+                eventInfo += f'__**{result["name"]}**__\nStarting at {result["startDate"]}\n'
 
             # Adding the timer based on the parameter "relative", otherwise it checks for keys
             if (relative == "endDate"):
