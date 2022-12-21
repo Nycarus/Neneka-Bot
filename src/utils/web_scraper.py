@@ -1,14 +1,17 @@
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
+from src.utils.logger import setup_logger
 
 class WebScraper:
     @staticmethod
     async def scrape_crunchyroll_events():
+        logger = setup_logger('bot.utils.webscraper', '/data/discord.log')
+
         url = "https://got.cr/priconne-update"
         req = requests.get(url)
         if (not req.ok):
-            print("crunchyroll page request failed.")
+            logger.error("Crunchyroll page request failed.")
             return None
 
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -16,7 +19,7 @@ class WebScraper:
         content = soup.select('div.contents > ul')
 
         if(not content):
-            print("crunchyroll page contains no content.")
+            logger.error("crunchyroll page contains no content.")
             return None
 
         

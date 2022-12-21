@@ -2,17 +2,19 @@ from datetime import datetime, timedelta
 
 from src.models.event_model import EventModel
 from src.repository.event_repository import EventRespository
+from src.utils.logger import setup_logger
 
 class EventService:
     def __init__(self):
         self._eventRespository = EventRespository()
+        self._logger = setup_logger('bot.service.event', '/data/discord.log')
 
     async def cleanExpiredEvents(self) -> None:
         # Clean events where end dates have passed
         result_event: list[EventModel] = await self._eventRespository.findAllByEndDateLessThanEqual(datetime.utcnow())
         if(result_event):
             await self._eventRespository.deleteAll(result_event)
-            print("Outdated events are cleaned.")
+            self._logger.info("Outdated events are cleaned.")
         
         # Clean events where start date have passed, with no end dates, and it's been a month since event started
         result_content: list[EventModel] = await self._eventRespository.findAllByEndDate(None)
@@ -26,10 +28,10 @@ class EventService:
 
             if(deletePile):
                 await self._eventRespository.deleteAll(deletePile)
-                print("Outdated content updates are cleaned.")
+                self._logger.info("Outdated content updates are cleaned.")
 
         if (not (result_event or deletePile)):
-            print("There are no outdated events.")
+            self._logger.info("There are no outdated events.")
     
     async def addEvents(self, events) -> bool:
         if(not events):
@@ -41,7 +43,7 @@ class EventService:
             results.append(await self._eventRespository.findByNameAndDate(name=event['event'], startDate=event['startDate'], endDate=event['endDate']))
         
         if (results == None or len(results) != len(events)):
-            print("Something has went wrong with querying for existing events.")
+            self._logger.error("Something has went wrong with querying for existing events.")
             return False
 
         # Converting events to database models that have not expired
@@ -65,13 +67,13 @@ class EventService:
             eventModels.append(eventModel)
 
         if (not eventModels):
-            print("There are no new events added.")
+            self._logger.info("There are no new events added.")
             return False
 
         # Insert models to db
         result = await self._eventRespository.saveAll(eventModels)
         if (result):
-            print("Events are added to database successfully.")
+            self._logger.info("Events are added to database successfully.")
     
     async def getCurrentEvents(self):
         results = await self._eventRespository.findAllByDateBetween(date=datetime.utcnow(), order="desc")

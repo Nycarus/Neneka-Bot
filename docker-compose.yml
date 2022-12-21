@@ -4,7 +4,7 @@ services:
   nenekabot:
     container_name: NenekaBot
     image: nenekabot
-    restart: always
+    restart: unless-stopped
     build:
        context: .
        dockerfile: Dockerfile
@@ -23,7 +23,7 @@ services:
   postgres:
     container_name: nenekabot_postgres
     image: postgres:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - "${POSTGRES_PORTS}"
     networks:
@@ -39,7 +39,7 @@ services:
   redis:
     container_name: nenekabot_redis
     image: redis:alpine
-    restart: always
+    restart: unless-stopped
     ports:
       - "${REDIS_PORTS}"
     volumes:

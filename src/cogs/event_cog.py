@@ -7,6 +7,7 @@ from src.discord_bot import DiscordBot
 from src.utils.web_scraper import WebScraper
 from src.services.event_service import EventService
 from src.cogs.guild_cog import GuildCog
+from src.utils.logger import setup_logger
 
 class InfoCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
@@ -14,6 +15,7 @@ class InfoCog(commands.Cog):
         self.princess_connect_daily_update.start()
         self.dailyNotifications.start()
         self._eventService = EventService()
+        self._logger = setup_logger('bot.cog.info', '/data/discord.log')
 
     def cog_unload(self):
         self.princess_connect_daily_update.cancel()
@@ -21,7 +23,7 @@ class InfoCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("info cog is ready.")
+        self._logger.info("info cog is ready.")
 
     @commands.hybrid_group(name="event", description="Get events.", pass_context=True, aliases=["events"])
     async def events(self, ctx: commands.context.Context):
@@ -40,7 +42,7 @@ class InfoCog(commands.Cog):
             
             await ctx.reply(embed=embed)
         except Exception as e:
-            print(e)
+            self._logger.error(e)
             await ctx.reply("Unable to get events.")
     
     @events.command(name="ending", description="Get events ending soon.")
@@ -65,7 +67,7 @@ class InfoCog(commands.Cog):
             
             await ctx.reply(embed=embed)
         except Exception as e:
-            print(e)
+            self._logger.error(e)
             await ctx.reply("Unable to get events.")
     
     @events.command(name="upcoming", description="Get upcoming events.")
@@ -90,7 +92,7 @@ class InfoCog(commands.Cog):
             
             await ctx.reply(embed=embed)
         except Exception as e:
-            print(e)
+            self._logger.error(e)
             await ctx.reply("Unable to get events.")
 
     def createEventEmbed(self, title:str, data:str, ctx:commands.context.Context=None, days: int = None, relative:str=None):
@@ -132,18 +134,18 @@ class InfoCog(commands.Cog):
         This task sends daily reminders of soon to be ending or upcoming events within the next 2 days.
         """
 
-        print("Updating daily info.")
+        self._logger.info("Updating daily info.")
         try:
-            print("Checking for expired events.")
+            self._logger.info("Checking for expired events.")
             await self._eventService.cleanExpiredEvents()
 
-            print("Webscraping crunchyroll princess connect news website.")
+            self._logger.info("Webscraping crunchyroll princess connect news website.")
             events = await WebScraper.scrape_crunchyroll_events()
             if (events):
-                print ("Checking if scraped data contains new events.")
+                self._logger.info("Checking if scraped data contains new events.")
                 await self._eventService.addEvents(events)
         except Exception as e:
-            print(e) 
+            self._logger.error(e) 
 
     
     @tasks.loop(seconds=30)
@@ -161,11 +163,11 @@ class InfoCog(commands.Cog):
             tomorrow = current_date.replace(hour=14, minute=0, second=0, microsecond=0)
 
         seconds = (tomorrow - current_date).total_seconds()
-        print(f"Daily reminder in: {seconds} seconds.")
+        self._logger.info(f"Daily reminder in: {seconds} seconds.")
         await asyncio.sleep(seconds)
         
         # Starting to print to every server
-        print("Printing daily reminders.")
+        self._logger.info("Printing daily reminders.")
         await self._bot.wait_until_ready()
         
         # Get events ending and coming in 2 days
@@ -212,15 +214,15 @@ class InfoCog(commands.Cog):
                         await channel.send(embed=embed)
                         continue
                 except Exception as e:
-                    print(e)
-                    print(f"Something went wrong with sending a daily update to the server {guild}.")
+                    self._logger.error(e)
+                    self._logger.error(f"Something went wrong with sending a daily update to the server {guild}.")
     
     @princess_connect_daily_update.before_loop
     async def before_daily_update(self):
         """
         This method ensures the bot is fully setup before the daily update background task is done.
         """
-        print("Waiting for bot to be ready before scraping data.")
+        self._logger.info("Waiting for bot to be ready before scraping data.")
         await self._bot.wait_until_ready()
 
 async def setup(bot: DiscordBot):

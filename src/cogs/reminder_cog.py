@@ -1,26 +1,26 @@
 import discord
 from discord.ext import tasks, commands
 from datetime import datetime, timedelta
-import logging
 import textwrap
 
 from src.discord_bot import DiscordBot
 from src.services.reminder_services import ReminderService
 from src.models.reminder_model import ReminderModel
-
+from src.utils.logger import setup_logger
 
 class ReminderCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
         self._bot = bot
         self._reminderService = ReminderService()
         self.executeReminders.start()
+        self._logger = setup_logger('bot.cog.reminder', '/data/discord.log')
 
     def cog_unload(self):
         self.executeReminders.cancel()
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("reminder cog is ready.")
+        self._logger.info("reminder cog is ready.")
 
     @commands.hybrid_group(name="reminder", with_app_command=True, description="Make a reminder to yourself.", aliases=["remind, remindme, reminders"])
     async def reminder(self, ctx: commands.context.Context, days:int, hours:int, minutes:int, *, description=None):
@@ -63,7 +63,7 @@ class ReminderCog(commands.Cog):
             else:
                 await ctx.reply("I was not able to make the reminder.")
         except Exception as e:
-            print(e)
+            self._logger.error(e)
 
     @reminder.command(name="delete", with_app_command=True, description="Delete all reminders you have made.")
     async def reminderDelete(self, ctx: commands.context.Context):
@@ -78,8 +78,8 @@ class ReminderCog(commands.Cog):
         try:
             reminders: list[ReminderModel] = await self._reminderService.getAndDeleteOldReminders()
         except Exception as ex:
-            print(ex)
-            print("Something was wrong with getting reminders.")
+            self._logger.error(ex)
+            self._logger.error("Something was wrong with getting reminders.")
         
         # Send Reminders that are old
         if (reminders):
@@ -112,9 +112,8 @@ class ReminderCog(commands.Cog):
                     user = self._bot.get_user(reminder.userID)
                     await user.send(embed=embed)
                 except Exception as e:
-                    print(e)
-                    logging.error("")
-                    print("Something went wrong with delivering reminder.")
+                    self._logger.error(e)
+                    self._logger.error("Something went wrong with delivering reminder.")
         
 
     @executeReminders.before_loop

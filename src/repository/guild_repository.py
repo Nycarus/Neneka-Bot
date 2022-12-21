@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from src.models.model import Base
 from src.models.guild_model import GuildModel
+from src.utils.logger import setup_logger
 
 class GuildRespository:
     def __init__(self):
@@ -15,9 +16,11 @@ class GuildRespository:
         self._session = sessionmaker()
         self._session.configure(bind=self._engine, expire_on_commit=False)
         Base.metadata.create_all(self._engine)
+        self._logger = setup_logger('bot.repository.guild', '/data/discord.log')
     
     async def save(self, guild: GuildModel) -> bool:
         if (type(guild) != GuildModel):
+            self._logger.error(f"Incorrect datatype: guild with type {type(guild)}")
             return False
 
         with self._session() as session:
@@ -25,9 +28,9 @@ class GuildRespository:
             try:
                 session.add(guild)
             except Exception as e:
-                print (e)
+                self._logger.error(e)
                 session.rollback()
-                print("Database insert error has occured with Guild.")
+                self._logger.error("Database insert error has occured with Guild.save.")
                 return False
             else:
                 session.commit()
@@ -35,6 +38,7 @@ class GuildRespository:
 
     async def update(self, guild: GuildModel) -> bool:
         if (type(guild) != GuildModel):
+            self._logger.error(f"Incorrect datatype: guild with type {type(guild)}")
             return False
 
         with self._session() as session:
@@ -49,9 +53,9 @@ class GuildRespository:
                 session.query(GuildModel).filter(GuildModel.id == guild.id).update(update)
                 
             except Exception as e:
-                print (e)
+                self._logger.error(e)
                 session.rollback()
-                print("Database update error has occured with Guild.")
+                self._logger.error("Database update error has occured with Guild.update.")
                 return False
             else:
                 session.commit()
@@ -59,14 +63,17 @@ class GuildRespository:
 
     async def update(self, id: int, notificationChannelID : int=None, roleID:int = None) -> bool:
         if (type(id) != int):
+            self._logger.error(f"Incorrect datatype: id with type {type(id)}")
             return False
 
         if (type(notificationChannelID) != int):
             if (notificationChannelID != None):
+                self._logger.error(f"Incorrect datatype: notificationChannelID with type {type(notificationChannelID)}")
                 return False
 
         if (type(roleID) != int):
             if (roleID != None):
+                self._logger.error(f"Incorrect datatype: roleID with type {type(roleID)}")
                 return False
 
         with self._session() as session:
@@ -80,9 +87,9 @@ class GuildRespository:
 
                 session.query(GuildModel).filter(GuildModel.id == id).update(update)
             except Exception as e:
-                print (e)
+                self._logger.error(e)
                 session.rollback()
-                print("Database update error has occured with Guild.")
+                self._logger.error("Database update error has occured with Guild.update.")
                 return False
             else:
                 session.commit()
@@ -90,6 +97,7 @@ class GuildRespository:
 
     async def delete(self, guild: GuildModel) -> bool:
         if (type(guild) != GuildModel):
+            self._logger.error(f"Incorrect datatype: guild with type {type(guild)}")
             return False
 
         with self._session() as session:
@@ -97,9 +105,9 @@ class GuildRespository:
             try:
                 session.delete(guild)
             except Exception as e:
-                print (e)
+                self._logger.error(e)
                 session.rollback()
-                print("Database delete error has occured with Guild.")
+                self._logger.error("Database delete error has occured with Guild.delete.")
                 return False
             else:
                 session.commit()
@@ -107,6 +115,7 @@ class GuildRespository:
 
     async def findByID(self, id: int) -> GuildModel:
         if (type(id) != int):
+            self._logger.error(f"Incorrect datatype: id with type {type(id)}")
             return None
 
         with self._session() as session:
@@ -114,9 +123,9 @@ class GuildRespository:
             try:
                 result = session.query(GuildModel).filter(GuildModel.id == id).first()
             except Exception as e:
-                print (e)
+                self._logger.error(e)
                 session.rollback()
-                print("Database query error has occured with Guild.")
+                self._logger.error("Database query error has occured with Guild.findByID.")
                 return None
             else:
                 session.commit()

@@ -4,18 +4,20 @@ import textwrap
 
 from src.discord_bot import DiscordBot
 from src.services.guild_service import GuildService
+from src.utils.logger import setup_logger
 
 class GuildCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
         self._bot = bot
         self._guildServices = GuildService()
+        self._logger = setup_logger('bot.cog.guild', '/data/discord.log')
 
     def cog_unload(self):
         pass
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("guild cog is ready.")
+        self._logger.info("guild cog is ready.")
     
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.guild.Guild):
@@ -34,8 +36,8 @@ class GuildCog(commands.Cog):
             """))
             await guild.owner.send(embed=embed)
         except Exception as e:
-            print(e)
-            print(f'{guild.owner} has their dms turned off')
+            self._logger.error(e)
+            self._logger.error(f'{guild.owner} has their dms turned off')
 
     @commands.hybrid_group(name="setup", description="Setup server's event notification settings.", pass_context=True)
     async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = None, role:discord.Role = None):
@@ -86,7 +88,7 @@ class GuildCog(commands.Cog):
                 await ctx.reply("Unable to update server settings.")
             
         except Exception as e:
-            print(e)
+            self._logger.error(e)
             await ctx.reply("Guild setup has failed unexpectedly. Make sure the bot has access to those channels and they are spelled correctly.")
 
     @setup.command(name="delete", description="Delete server's event notification settings.", pass_context=True)

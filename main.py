@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import logging
 
 from src.discord_bot import DiscordBot
+from src.utils.logger import setup_logger
 
 def main():
     # Load ENV data
@@ -19,11 +20,10 @@ def main():
     
     bot = DiscordBot(command_prefix=";", intents=intents)
 
-    # Setup logging
-    log_handler = logging.FileHandler(filename='/data/discord.log', encoding='utf-8', mode='w')
+    logger = setup_logger('discord', '/data/discord.log')
 
     # Run discord bot
-    bot.run(TOKEN, log_handler=log_handler, log_level=logging.DEBUG)
+    bot.run(TOKEN, root_logger=logger, log_level=logging.INFO)
 
 if __name__ == '__main__':
     main()
