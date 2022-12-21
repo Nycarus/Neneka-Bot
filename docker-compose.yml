@@ -16,7 +16,6 @@ services:
     entrypoint: ["python", "main.py"]
     depends_on:
       - postgres
-      - redis
     volumes:
       - ./data:/data
     
@@ -38,7 +37,6 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
 
 networks:
   neneka-bot-network:
