@@ -1,11 +1,12 @@
+import asyncio
 import discord
 from discord.ext import tasks, commands
+from datetime import datetime, timedelta
+
 from src.discord_bot import DiscordBot
 from src.utils.web_scraper import WebScraper
 from src.services.event_service import EventService
 from src.cogs.guild_cog import GuildCog
-from datetime import datetime, timedelta
-import asyncio
 
 class InfoCog(commands.Cog):
     def __init__(self, bot: DiscordBot):

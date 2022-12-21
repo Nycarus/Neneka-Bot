@@ -1,10 +1,13 @@
 import discord
 from discord.ext import tasks, commands
+from datetime import datetime, timedelta
+import logging
+import textwrap
+
 from src.discord_bot import DiscordBot
 from src.services.reminder_services import ReminderService
-from datetime import datetime, timedelta
 from src.models.reminder_model import ReminderModel
-import textwrap
+
 
 class ReminderCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
@@ -65,7 +68,6 @@ class ReminderCog(commands.Cog):
     @tasks.loop(minutes=1)
     async def executeReminders(self):
         try:
-            # Check for reminders
             reminders: list[ReminderModel] = await self._reminderService.getAndDeleteOldReminders()
         except Exception as ex:
             print(ex)
@@ -103,6 +105,7 @@ class ReminderCog(commands.Cog):
                     await user.send(embed=embed)
                 except Exception as e:
                     print(e)
+                    logging.error("")
                     print("Something went wrong with delivering reminder.")
         
 

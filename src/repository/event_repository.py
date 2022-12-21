@@ -1,11 +1,13 @@
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from src.models.model import Base
 from src.models.event_model import EventModel
-from datetime import datetime
+
 
 class EventRespository:
     def __init__(self):

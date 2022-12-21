@@ -1,10 +1,12 @@
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from src.models.model import Base
 from src.models.reminder_model import ReminderModel
-from datetime import datetime
+
 
 class ReminderRespository:
     def __init__(self):

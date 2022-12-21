@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
+import textwrap
+
 from src.discord_bot import DiscordBot
 from src.services.guild_service import GuildService
-import textwrap
 
 class GuildCog(commands.Cog):
     def __init__(self, bot: DiscordBot):
@@ -68,7 +69,18 @@ class GuildCog(commands.Cog):
             result = await self._guildServices.updateGuild(id=ctx.message.guild.id, notificationChannelID=notificationChannelID, roleID=roleID)
 
             if (result):
-                await ctx.reply("Server has successfully updated settings.")
+                message = "Server has successfully updated settings."
+                message += "\n\nThe following has been updated:"
+                if (notificationChannel):
+                    message += f"\nChannel: {notificationChannel}"
+                if (role):
+                    message += f"\nRole Ping: {role}"
+
+                embed = discord.embeds.Embed(title="Setup", 
+                        description=message,
+                        color=discord.Colour.blurple())
+
+                await ctx.reply(embed=embed)
             else:
                 await ctx.reply("Unable to update server settings.")
             

@@ -1,6 +1,7 @@
+from datetime import datetime, timedelta
+
 from src.models.event_model import EventModel
 from src.repository.event_repository import EventRespository
-from datetime import datetime, timedelta
 
 class EventService:
     def __init__(self):

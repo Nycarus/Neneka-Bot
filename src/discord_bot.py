@@ -12,7 +12,7 @@ class DiscordBot(commands.Bot):
         for filename in os.listdir("./src/cogs"):
             if filename.endswith(".py"):
                 await self.load_extension(f'src.cogs.{filename[:-3]}')
-                print(f'{filename} cog loaded.')
+                logging.info(f'{filename} cog loaded.')
 
     async def on_ready(self):
         print(f'{self.user} is now running.')

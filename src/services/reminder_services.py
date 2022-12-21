@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from src.repository.reminder_repository import ReminderRespository
 from src.models.reminder_model import ReminderModel
-from datetime import datetime
 
 class ReminderService:
     def __init__(self):
