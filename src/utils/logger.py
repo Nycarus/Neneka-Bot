@@ -7,4 +7,5 @@ def setup_logger(name: str, log_file: str, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.addHandler(handler)
+    logger.propagate = False
     return logger
