@@ -29,7 +29,7 @@ class HelpCog(commands.Cog):
             **/help** - Gets a list of commands.
             **/coinflip** - Flip a coin.
             **/random** - Chooses a number between 1 to X.
-            **/shoud** - Ask a question, bot will give a vague answer. 
+            **/should** - Ask a question, bot will give a vague answer. 
 
             __**Setting Commands**__
             **/setup** - Setup notification and ping role server settings.
