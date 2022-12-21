@@ -23,7 +23,12 @@ class ReminderCog(commands.Cog):
         self._logger.info("reminder cog is ready.")
 
     @commands.hybrid_group(name="reminder", with_app_command=True, description="Make a reminder to yourself.", aliases=["remind, remindme, reminders"])
-    async def reminder(self, ctx: commands.context.Context, days:int, hours:int, minutes:int, *, description=None):
+    async def reminder(self, ctx: commands.context.Context, days:int = commands.parameter(default=0, description="The number of days from now."), hours:int = commands.parameter(default=0, description="The number of hours from now."), minutes:int = commands.parameter(default=0, description="The number of minutes from now."), *, description= commands.parameter(default=None, description="The description of the reminder.")):
+        """
+        Add a new reminder.
+
+        :param 
+        """
         if (days <= 0 and hours <= 0 and minutes <= 0 or days < 0 or hours < 0 or minutes < 0):
             await ctx.reply("Please enter the proper amount of time to make the reminder.")
             return
@@ -71,6 +76,9 @@ class ReminderCog(commands.Cog):
 
     @reminder.command(name="delete", with_app_command=True, description="Delete all reminders you have made.")
     async def reminderDelete(self, ctx: commands.context.Context):
+        """
+        Removes all your reminders.
+        """
         result = await self._reminderService.deleteAllReminders(userID=ctx.author.id)
         if (result):
             await ctx.reply("Successfully deleted all of your reminders.")

@@ -5,7 +5,7 @@ from src.utils.logger import setup_logger
 
 class DiscordBot(commands.Bot):
     def __init__(self, command_prefix: str, intents: discord.Intents):
-        commands.Bot.__init__(self, command_prefix=command_prefix, intents=intents)
+        commands.Bot.__init__(self, command_prefix=command_prefix, intents=intents, help_command=None)
         self._logger = setup_logger('bot', '/data/discord.log')
     
     async def setup_hook(self):

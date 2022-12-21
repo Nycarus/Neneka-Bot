@@ -29,18 +29,21 @@ class GuildCog(commands.Cog):
             embed.add_field(name="Instructions:", inline=True,
             value=textwrap.dedent(
             f"""
-            - Use the command `;setup #notification-channel @notification-role` to choose channels where this bot will send messages to.
+            - Use the command `/setup` to choose channels where this bot will send messages to.
             - Alternatively, you may choose to create a `#princess-connect-notification` or `#priconne-notification` channel to receive notifications.
 
-            - Use `;help` to see a list of commands.
+            - Use `/help` to see a list of commands.
             """))
             await guild.owner.send(embed=embed)
         except Exception as e:
             self._logger.error(e)
             self._logger.error(f'{guild.owner} has their dms turned off')
 
-    @commands.hybrid_group(name="setup", description="Setup server's event notification settings.", pass_context=True)
-    async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = None, role:discord.Role = None):
+    @commands.hybrid_group(name="setup", description="Setup server's notification settings for upcoming/ending princess connect events.", pass_context=True)
+    async def setup(self, ctx: commands.context.Context, notificationChannel:discord.TextChannel = commands.parameter(default=None, description="The channel where the bot will post 2-days heads up during reset."), role:discord.Role = commands.parameter(default=None, description="The role the bot will ping for the heads up.")):
+        """
+        Setup server by assigning notification channel and discord ping role.
+        """
         if (not ctx.message.guild):
             await ctx.reply("This command can only be used in a server.")
             return
@@ -93,6 +96,9 @@ class GuildCog(commands.Cog):
 
     @setup.command(name="delete", description="Delete server's event notification settings.", pass_context=True)
     async def setupDelete(self, ctx: commands.context.Context):
+        """
+        Delete server's settings for notification channel and discord ping role.
+        """
         if (not ctx.message.guild):
             await ctx.reply("This command can only be used in a server.")
             return
