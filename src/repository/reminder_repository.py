@@ -55,6 +55,23 @@ class ReminderRespository:
                 session.commit()
                 return True
 
+    async def findAllByUserID(self, id:int) -> list[ReminderModel]:
+        if (type(id) != int or not id):
+            return None
+
+        with self._session() as session:
+            session.begin()
+            try:
+                results = session.query(ReminderModel).filter(ReminderModel.userID == id).all()
+            except Exception as e:
+                print (e)
+                session.rollback()
+                print("Database query error has occured with Reminder.")
+                return None
+            else:
+                session.commit()
+                return results
+
     async def findAllByDateLessThanEqual(self, date:datetime) -> list[ReminderModel]:
         if (type(date) != datetime or not date):
             return None

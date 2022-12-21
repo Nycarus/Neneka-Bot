@@ -22,7 +22,7 @@ class ReminderCog(commands.Cog):
     async def on_ready(self):
         print("reminder cog is ready.")
 
-    @commands.hybrid_command(name="reminder", with_app_command=True, description="Make a reminder to yourself.", aliases=["remind, remindme, reminders"])
+    @commands.hybrid_group(name="reminder", with_app_command=True, description="Make a reminder to yourself.", aliases=["remind, remindme, reminders"])
     async def reminder(self, ctx: commands.context.Context, days:int, hours:int, minutes:int, *, description=None):
         if (days <= 0 and hours <= 0 and minutes <= 0 or days < 0 or hours < 0 or minutes < 0):
             await ctx.reply("Please enter the proper amount of time to make the reminder.")
@@ -64,6 +64,14 @@ class ReminderCog(commands.Cog):
                 await ctx.reply("I was not able to make the reminder.")
         except Exception as e:
             print(e)
+
+    @reminder.command(name="delete", with_app_command=True, description="Delete all reminders you have made.")
+    async def reminderDelete(self, ctx: commands.context.Context):
+        result = await self._reminderService.deleteAllReminders(userID=ctx.author.id)
+        if (result):
+            await ctx.reply("Successfully deleted all of your reminders.")
+        else:
+            await ctx.reply("Unable to delete any of your reminders. You may not have any reminders.")
 
     @tasks.loop(minutes=1)
     async def executeReminders(self):

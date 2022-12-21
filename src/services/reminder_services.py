@@ -12,6 +12,14 @@ class ReminderService:
         result = await self._reminderRepository.save(reminder)
         return result
 
+    async def deleteAllReminders(self, userID: int):
+        result = await self._reminderRepository.findAllByUserID(id=userID)
+        
+        if (result):
+            return await self._reminderRepository.deleteAll(result)
+        else:
+            return False
+
     async def getAndDeleteOldReminders(self):
         reminders = await self._reminderRepository.findAllByDateLessThanEqual(date=datetime.utcnow())
         
