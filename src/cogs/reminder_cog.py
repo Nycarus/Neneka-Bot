@@ -28,6 +28,10 @@ class ReminderCog(commands.Cog):
             await ctx.reply("Please enter the proper amount of time to make the reminder.")
             return
 
+        if (not description):
+            await ctx.reply("Please enter the proper description for the reminder.")
+            return
+
         try:
             description = "".join(description)
             date = datetime.utcnow() + timedelta(days=days, hours=hours, minutes=minutes)
@@ -48,7 +52,7 @@ class ReminderCog(commands.Cog):
                 embed = discord.embeds.Embed(title="Reminder", 
                     description=textwrap.dedent(
                     f"""
-                    I will notify you in {days} {'days' if days > 1 else 'day'}, {hours} {'hours' if hours > 1 else 'hour'}, and {minutes} {'minutes' if minutes > 1 else 'minute'}.
+                    Hi, I will notify you in {days} {'days' if days > 1 else 'day'}, {hours} {'hours' if hours > 1 else 'hour'}, and {minutes} {'minutes' if minutes > 1 else 'minute'}.
                     Date: {f'<t:{int(dateDifference.total_seconds())}:f>'}
                     Time: {f'<t:{int(dateDifference.total_seconds())}:R>'}
                     

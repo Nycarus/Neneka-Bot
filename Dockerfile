@@ -6,8 +6,5 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED 1
 
 # Install dependencies into container
-COPY requirements.txt .
+ADD . /app
 RUN pip install -r requirements.txt
-
-# Staging Files
-COPY . .

@@ -1,2 +1,9 @@
 .env
 data/*
+
+# compiled
+__pycache__/
+*.py[cod]
+
+
+*.log
