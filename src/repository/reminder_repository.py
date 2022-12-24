@@ -3,17 +3,27 @@ from dotenv import load_dotenv
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from google.cloud import secretmanager
 
 from src.models.model import Base
 from src.models.reminder_model import ReminderModel
 from src.utils.logger import setup_logger
+from src.utils.secrets import access_secret_version
 
 class ReminderRespository:
     def __init__(self):
         load_dotenv()
-        self._engine = create_engine(
-            f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_NAME')}"
-            )
+        if (int(os.environ.get("PRODUCTION", 0)) == 1):
+            postgres_user = access_secret_version('POSTGRES_USER')
+            postgres_password = access_secret_version('POSTGRES_PASSWORD')
+            postgres_host = access_secret_version('POSTGRES_HOST')
+            postgres_port = access_secret_version('POSTGRES_PORT')
+            postgres_name = access_secret_version('POSTGRES_NAME')
+            self._engine = create_engine( f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_name}")
+        else:
+            self._engine = create_engine(
+                f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_NAME')}"
+                )
         self._session = sessionmaker()
         self._session.configure(bind=self._engine, expire_on_commit=False)
         Base.metadata.create_all(self._engine)

@@ -5,11 +5,15 @@ import logging
 
 from src.discord_bot import DiscordBot
 from src.utils.logger import setup_logger
+from src.utils.secrets import access_secret_version
 
 def main():
     # Load ENV data
     load_dotenv()
-    TOKEN = os.getenv('DISCORD_TOKEN')
+    if (int(os.environ.get("PRODUCTION", 0)) == 1):
+        TOKEN = access_secret_version('DISCORD_TOKEN')
+    else:
+        TOKEN = os.getenv('DISCORD_TOKEN')
 
     # Intialize Bot
     intents = discord.Intents.default()
