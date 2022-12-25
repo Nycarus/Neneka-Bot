@@ -165,11 +165,11 @@ class InfoCog(commands.Cog):
         current_date = datetime.utcnow()
 
         # Sleep till expected time 14am UTC
-        if (current_date >= current_date.replace(hour=14, minute=0, second=0, microsecond=0)):
+        if (current_date >= current_date.replace(hour=13, minute=0, second=0, microsecond=0)):
             tomorrow = current_date + timedelta(days=1)
-            tomorrow = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+            tomorrow = tomorrow.replace(hour=13, minute=0, second=0, microsecond=0)
         else:
-            tomorrow = current_date.replace(hour=14, minute=0, second=0, microsecond=0)
+            tomorrow = current_date.replace(hour=13, minute=0, second=0, microsecond=0)
 
         seconds = (tomorrow - current_date).total_seconds()
         self._logger.info(f"Daily reminder in: {seconds} seconds.")
