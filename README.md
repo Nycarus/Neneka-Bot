@@ -1,6 +1,4 @@
 # Neneka-Bot
-[Invite discord bot to your server.](https://discord.com/api/oauth2/authorize?client_id=1049874702497234955&permissions=423054789696&scope=bot%20applications.commands)
-
 Discord bot that gets latest events, create reminders, and displays events. Built for some of the basic needs of casual Princess Connect players, but mostly for personaly use.
 
 # Features
